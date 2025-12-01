@@ -269,14 +269,6 @@ class HFACControlSystemV2:
                 anchor='center',
                 relief='sunken',
                 bd=2
-            ).grid(row=i, column=1, sticky='ew', padx=10)
-            
-            self.actuator_outputs[key] = var
-    
-    def create_sensor_inputs(self, parent, storage, is_current):
-        """Create sensor input controls"""
-        sensors = [
-            ("Temperature (C)", "temperature", 15, 35, 25),
             ("Humidity (%)", "humidity", 30, 90, 65),
             ("Light (%)", "light_intensity", 0, 100, 70),
             ("Motion", "motion", 0, 1, 0)
@@ -403,27 +395,6 @@ class HFACControlSystemV2:
             
             if self.selected_model == "NEURAL_NETWORK":
                 y_pred = self.predict_neural_network(temp, hum, light, motion)
-            elif self.selected_model == "MPC":
-                y_pred = self.predict_mpc(temp, hum, light, motion)
-            elif self.selected_model == "QLEARNING":
-                y_pred = self.predict_qlearning(temp, hum, light, motion)
-            
-            # Update outputs
-            self.actuator_outputs['fan_cooling'].set(f"{y_pred[0]:.1f}%")
-            self.actuator_outputs['fan_circulation'].set(f"{y_pred[1]:.1f}%")
-            self.actuator_outputs['water_pump'].set(f"{y_pred[2]:.1f}%")
-            self.actuator_outputs['grow_light'].set(f"{y_pred[3]:.1f}%")
-            
-            # Plot
-            self.plot_single(y_pred, temp, hum, light)
-            
-        except Exception as e:
-            messagebox.showerror("Error", f"Prediction failed: {e}")
-    
-    def simulate_transition(self):
-        """Simulate transition from current to target conditions"""
-        try:
-            curr_temp = self.current_conditions['temperature'].get()
             curr_hum = self.current_conditions['humidity'].get()
             curr_light = self.current_conditions['light_intensity'].get()
             curr_motion = self.current_conditions['motion'].get()
@@ -696,20 +667,6 @@ Model: {self.selected_model}
         """Reset all fields"""
         defaults = {'temperature': 25.0, 'humidity': 65.0, 'light_intensity': 70.0, 'motion': 0}
         
-        for key, val in defaults.items():
-            if key in self.current_conditions:
-                self.current_conditions[key].set(val)
-            if key in self.target_conditions:
-                self.target_conditions[key].set(val)
-        
-        for key in self.actuator_outputs:
-            self.actuator_outputs[key].set("--")
-        
-        self.plot_empty()
-
-def main():
-    """
-    HFAC Greenhouse Control System V2
     
     Features:
     - Single model prediction with detailed analysis
